@@ -65,6 +65,7 @@ export default function Topbar({
   changeTheme,
   changeMenu,
   changeGrid,
+  showProfile,
 }: any) {
   const classes = useStyles();
   const phone: boolean = useMediaQuery("(min-width:475px)");
@@ -119,7 +120,7 @@ export default function Topbar({
               <FlareRounded />
             )}
           </IconButton>
-          <IconButton>
+          <IconButton onClick={showProfile}>
             <AccountCircleOutlined />
           </IconButton>
         </div>

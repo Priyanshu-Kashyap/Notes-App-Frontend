@@ -1,9 +1,8 @@
 export interface User {
-  username: String;
-  email: String;
-  uid: Number;
-  password?: String;
+  username: string;
+  email: string;
+  uid: number;
+  imgUrl: string;
+  authProvider: string;
   createdDate: Date;
-  authProvider: String;
-  providerId: String;
 }

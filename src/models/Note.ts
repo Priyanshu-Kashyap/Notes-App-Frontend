@@ -1,9 +1,12 @@
+import { User } from "./User";
+
 export interface Note {
-  title: String;
-  content: String;
-  uid: Number;
-  nid: Number;
+  title: string;
+  content: string;
+  nid?: number;
+  trash: boolean;
+  archive: boolean;
+  images?: string[];
   editDate: Date;
-  trash: Boolean;
-  archive: Boolean;
+  user: User;
 }

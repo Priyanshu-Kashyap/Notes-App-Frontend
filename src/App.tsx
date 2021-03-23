@@ -9,12 +9,13 @@ import {
   useTheme,
 } from "@material-ui/core";
 import { PaletteOptions } from "@material-ui/core/styles/createPalette";
-import React, { createContext, useState } from "react";
+import React, { createContext, useEffect, useState } from "react";
 import { BrowserRouter } from "react-router-dom";
-import Profile from "./auth/Profile";
+import Profile from "./components/auth/Profile";
 import SideNav from "./components/nav/Sidenav";
 import Topbar from "./components/nav/Topbar";
 import Routes from "./Routes";
+import { AuthService } from "./services/auth.service";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -33,11 +34,12 @@ export const GridContext = createContext(true);
 
 function App() {
   const [state, setState] = useState({
-    dark: true,
+    isAuthenticated: false,
+    dark: localStorage.getItem("theme") === "dark",
     menu: useMediaQuery(useTheme().breakpoints.up("sm")),
     grid: true,
+    showProfile: false,
   });
-
   const lightTheme: PaletteOptions = {
     type: "light",
     background: {
@@ -55,7 +57,7 @@ function App() {
   const theme = createMuiTheme({
     palette: state.dark ? darkTheme : lightTheme,
   });
-  const getTheme = () => {
+  const getTheme = async () => {
     setState({ ...state, dark: !state.dark });
   };
   const getMenu = () => {
@@ -64,9 +66,26 @@ function App() {
   const getGrid = () => {
     setState({ ...state, grid: !state.grid });
   };
+  const getProfileState = () => {
+    setState({ ...state, showProfile: !state.showProfile });
+  };
 
   const classes = useStyles(state.menu);
 
+  useEffect(() => {
+    const auth = new AuthService();
+    state.dark
+      ? localStorage.setItem("theme", "dark")
+      : localStorage.setItem("theme", "light");
+    auth
+      .oauth2User()
+      .then((user) => localStorage.setItem("user", JSON.stringify(user.data)))
+      .catch((err) => console.error(err));
+    auth
+      .getUser()
+      .then((user) => localStorage.setItem("user", JSON.stringify(user.data)))
+      .catch((err) => console.error(err));
+  }, [state.dark]);
   return (
     <BrowserRouter>
       <ThemeProvider theme={theme}>
@@ -76,8 +95,9 @@ function App() {
           changeTheme={getTheme}
           changeMenu={getMenu}
           changeGrid={getGrid}
+          showProfile={getProfileState}
         />
-        <Profile />
+        {state.showProfile ? <Profile /> : <></>}
         <SideNav menu={state.menu} />
         <GridContext.Provider value={state.grid}>
           <div className={classes.routesPage}>

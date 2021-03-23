@@ -16,7 +16,9 @@ import {
   Redo,
   Undo,
 } from "@material-ui/icons";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Note } from "../models/Note";
+import { NoteService } from "../services/notes.service";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -48,21 +50,24 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 export default function CreateNote() {
+  const noteService = useMemo(() => new NoteService(), []);
   const classes = useStyles();
   const [takeNote, setTakeNote] = useState(false);
-  /*const [noteDetails, setNoteDetails] = useState<Note>({
+  const [noteDetails, setNoteDetails] = useState<Note>({
     title: "",
     content: "",
-    uid: 0,
-    nid: 0,
-    trash: false,
+    images: [],
     archive: false,
+    trash: false,
     editDate: new Date(),
-  });*/
+    user: JSON.parse(localStorage.getItem("user") as string),
+  });
 
   const node = useRef<HTMLDivElement>(null);
 
   const handleSubmit = () => {
+    if ((noteDetails.title || noteDetails.content) !== "")
+      return noteService.saveNote(noteDetails);
     setTakeNote(false);
   };
   const note = (e: any) => {
@@ -71,6 +76,7 @@ export default function CreateNote() {
   };
   useEffect(() => {
     document.addEventListener("mousedown", note);
+    const saveNote = () => {};
     return () => {
       document.removeEventListener("mousedown", note);
     };
@@ -101,15 +107,15 @@ export default function CreateNote() {
       ) : (
         <div className={classes.takeNote}>
           <InputBase
-            margin='dense'
+            margin="dense"
             style={{ fontSize: "1.1rem" }}
-            placeholder='Title'
+            placeholder="Title"
           />
           <InputBase
-            margin='dense'
+            margin="dense"
             autoFocus
             multiline
-            placeholder='Take a note...'
+            placeholder="Take a note..."
           />
           <div className={classes.actions}>
             <div className={classes.buttons}>
